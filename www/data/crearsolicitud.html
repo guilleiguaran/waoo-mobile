@@ -1,0 +1,80 @@
+<div class="pages">
+	<div data-page="form" class="page no-toolbar no-navbar">
+		<div class="page-content">
+			<div class="navbarpages">
+				<div class="navbar_left"><a href="#" onclick="cargaPagina('index.html',0);"><img src="images/icons/blue/menu.png" alt="" title="" /></a></div>
+				<div class="navbar_center"><h2><a href="#" onclick="cargaPagina('index.html',0);"><img class="header-logo" src="images/logo.png" alt="waoo" /></a></h2></div>
+				<div class="navbar_right"><a href="#" data-panel="right" class="open-panel"><img src="images/icons/blue/user.png" alt="" title="" /></a></div>
+			</div>
+			<div id="pages_maincontent">
+				<h2 class="page_title">Registrar solicitud</h2>
+				<div id="detalletext" class="mimodal">
+					<div class = "modal-header">
+						<button type='button' class='close' aria-label='close' onclick='$("#detalletext").hide();'>&times;</button>
+					</div>
+					<div id="detalletext-cnt" class = "modal-body"></div>
+				</div>
+				<div id="dirpc" class="page_content">
+					<div class="contactform">
+						<div id="fileupload">
+							<form id="creasolicitud" method="post" enctype="multipart/form-data">
+								<div class="form_row">
+									<label>T&iacute;tulo: <small>(requerido)</small></label>
+									<input type="text" name="titulo" value="" class="form_input js-titulo" placeholder="m&aacute;x 45 caracteres"/>
+								</div>
+								<div class="form_row">
+									<label>Materia:</label>
+									<select id="materia" name="idmateria" class="form_select"></select>
+								</div>
+								<div class="form-row">
+									<label>Fecha de entrega ideal</label>
+								</div>
+								<div class="form-row">
+									<div>
+										<div class="col-xs-2">A&ntilde;o</div>
+										<div class="col-xs-2">Mes</div>
+										<div class="col-xs-2">D&iacute;a</div>
+										<div class="col-xs-2">Hora</div>
+										<div class="col-xs-4">Minuto</div>
+									</div>
+								</div>
+								<div class="form-row">
+									<div>
+										<div class="col-xs-2"><select id="anio" name="anio"></select></div>
+										<div class="col-xs-2"><select id="mes" name="mes"></select></div>
+										<div class="col-xs-2"><select id="dia" name="dia"></select></div>
+										<div class="col-xs-2"><select id="hora" name="hora"></select></div>
+										<div class="col-xs-4"><select id="minutos" name="minutos"></select></div>
+									</div>
+								</div>
+								<div class="form_row">
+									<label>Detalles del trabajo: <small>(requerido)</small></label>
+									<textarea name="descripcion" class="form_textarea js-descripcion" rows="" cols=""></textarea>
+								</div>
+								<div class="form_row">
+									<label class="fileinput-button" id="fileinput" >
+										<span id='despuesd'>Adjuntar archivo</span>
+									 	<small>(requerido)</small>
+									</label>
+									<div class="uploadfiles">
+										<input type="hidden" id="cantfiles" name="cantfiles" value="1">
+										<input type="file" name="uploadfile1" class="js-upload-file">
+									</div>
+									<br>
+									Tipos permitidos: gif | jpg | png | jpeg | bmp | pdf | doc | docx | xls | xlsx | txt | zip | rar
+									<br>
+									M&aacute;x 10MB
+									<br>
+									<button type="button" class="btn btn-primary" onclick="agregarFilaArchivo();">Agregar otro archivo</button>
+								</div>
+								<input id="nck" type="hidden" name="nickname">
+								<input type="submit" name="submit" class="form_submit" id="submit" value="Enviar solicitud" />
+							</form>
+							<div class = "upload-image-messages"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
