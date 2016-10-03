@@ -4,8 +4,7 @@
 <widget xmlns     = "http://www.w3.org/ns/widgets"
         xmlns:gap = "http://phonegap.com/ns/1.0"
         id        = "com.waooapp.waoo"
-        versionCode = "200108"
-        version   = "2.1.0">
+        version   = "2.0.4">
 
     <name>Waoo</name>
 
