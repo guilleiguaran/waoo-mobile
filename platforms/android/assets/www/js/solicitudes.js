@@ -156,21 +156,25 @@ function listarSolicitudesCreadasMatDiv(id){
 			else{
 				if(resp.msg=="[No hay solicitudes]") $("#"+id).html("<div class='alert'>"+(resp.msg)+"</div>");
 				else{
-					$("#"+id).html("<div class='alert table-responsive'>"
-						+"<table id='tblmat_"+id+"' class='table table-condensed'>"
-							+"<tr><th>T&iacute;tulo</th><th class='al-right'>Estado</th></tr>"
-						+"</table>"
-						+"<div id='detsols_"+id+"' class='alert'></div>"
-					+"</div>");
+					$("#"+id).html(
+            '<div id="detsols_'+id+'" class="alert"></div>'
+            +'<ul id="tblmat_'+id+'" class="features_list_detailed"></ul>'
+          );
 					var json = JSON.parse(resp.msg);
 					$.each(json,function(i2,v){
-						$("#tblmat_"+id).append("<tr>"
-							+"<td>"+((v.titulo).substring(0,10)+"...")+"</td>"
-							+"<td class='al-right' style='vertical-align: bottom;'>"
-								+v.estado
-								+"<img style='margin:0;cursor:pointer;display:inline;' src='images/icons/blue/plus.png' onclick='verDetalleSolicitud("+v.id+",\"detsols_"+id+"\""+(v.asistente!='sinasistente'?',1':'')+");'>"
-							+"</td>"
-						+"</tr>");
+						$("#tblmat_"+id).append(
+              '<li style="cursor:pointer;" onclick="verDetalleSolicitud(\''+v.id+'\',\'detsols_'+id+'\''+(v.asistente!='sinasistente'?',1':'')+');">'
+                +'<div class="feat_small_icon"><img src="images/icons/blue/favorites.png" alt="" title="" /></div>'
+                +'<div class="feat_small_details">'
+                  +'<h4><a href="#">'+((v.titulo).length > 30 ? (v.titulo).substring(0,30)+'...' : v.titulo)+'</a></h4>'
+                  +'<span><b>Tutor</b>: '+v.asistente+'</span><br/>'
+                  +'<span><b>Estado</b>: '+v.estado+'</span>'
+                +'</div>'
+                +'<span class="plus_icon">'
+                  +'<img style="margin:0;cursor:pointer;display:inline;" src="images/icons/blue/plus.png" />'
+                +'</span>'
+              +'</li>'
+            );
 					});
 				}
 			}
@@ -229,7 +233,7 @@ function verDetalleSolicitud(id,iddiv,oferta){
 												:""
 											)
 										)
-										+(v.idestado>1 && (v.asistente==window.localStorage.getItem("nickname") || v.usuario==window.localStorage.getItem("nickname"))
+										+(v.idestado>1 && v.idestado<4 && (v.asistente==window.localStorage.getItem("nickname") || v.usuario==window.localStorage.getItem("nickname"))
 											? "<button type='button' class='btn btn-primary btn-lg btn-block' onclick='ventanaSustentacion("+v.id+");''>Sustentaci&oacute;n</button>" : "")
 									)
 								)
@@ -292,6 +296,7 @@ function listarArchivosSolicitud(id,iddiv){
 								"<tr>"
 									+"<td style='vertical-align:bottom !important;'>"
 										+"Archivo "+(i2+1)+" por "+v.usuario+" ("+v.tipoarchivo+") "
+										// +"<img style='display:inline !important; cursor:pointer;' src='images/icons/blue/plus.png' onclick='window.open(\""+filesUrl+v.nombrearchivo+"\",\"_system\");'>"
 										+"<img style='display:inline !important; cursor:pointer;' src='images/icons/blue/plus.png' onclick='verArchivoSolicitud("+v.id+");'>" //web y android
 									+"</td>"
 								+"</tr>");
@@ -312,12 +317,7 @@ function verArchivoSolicitud(id){
 		url : waooserver+"/solicitudes/verArchivoSolicitud/"+id,
 		dataType: "json",
 		success : function(data) {
-			var rfpg = null;
-      if(window.cordova && window.cordova.InAppBrowser){
-        rfpg = window.cordova.InAppBrowser.open(data.msg, "_blank", 'location=no');
-      } else {
-        rfpg = window.open(data.msg,'_blank');
-      }
+			var rfpg = window.open(data.msg,"_system","location=yes");
 			if (rfpg == null || typeof(rfpg)=='undefined'){
 				alert("Desactiva tu pop-up blocker!\n\nTratamos de abrir la url:\n"+data.msg+"\n\nVe a Configuracion > Seguridad para desactivarlo");
 			}
@@ -326,9 +326,7 @@ function verArchivoSolicitud(id){
 			alert(e.message);
 		}
 	});
-
-
-  }
+}
 
 function ofertar(id,elem){
 	var valor = $.trim($("#voferta").val());
@@ -368,6 +366,7 @@ function verOfertas(id,iddiv){
 							+"<div class='shop_item_details'>"
 								+"<h4 style='position:initial !important;'>"
 									+"<a href='#'>"+v.asistente+"</a> <span class='stars' title='"+v.calificacion+"'>"+v.calificacion+"</span>"
+                  +"<span>("+v.calificacion+")</span>"
 								+"</h4>"
 								+"<div class='shop_item_price'>"+v.valor+" Waoo Tokens</div>"
 							+"</div>"
@@ -465,11 +464,14 @@ function aceptarOferta(id,valor) {
 			}
 			else{
 				alert(resp.msg);
-				if(resp.msg!='No tienes saldo suficiente'){
+				if(resp.msg=='No tienes saldo suficiente'){
+          cargaPagina('data/pasarelaCredito.html',10, {idpreciotrabajo:id, tokens:valor});
+        }
+        else {
 					cargaPagina('data/chats.html');
 					setTimeout(function () {
 						misendbird.setChannel('');
-						misendbird.init(0,resp.nickasistente);
+						misendbird.init(0,resp.nickasistente,id);
 					},200);
 				}
 			}
@@ -478,6 +480,15 @@ function aceptarOferta(id,valor) {
 			alert(e.message);
 		}
 	});
+}
+
+function notificarAperturaChatOfertaAceptada(idpreciotrabajo,nickasistente,urlChat) {
+  var ajax = $.ajax({
+    type: 'post',
+    url: waooserver+'/solicitudes/notificarAperturaChatOfertaAceptada',
+    dataType: 'json',
+    data: {nickasistente: nickasistente, urlChat: urlChat, idpreciotrabajo: idpreciotrabajo}
+  });
 }
 
 function agregarFilaArchivo(){
@@ -518,7 +529,7 @@ function ventanaSustentacion(idtrabajo) {
 				cargaPagina('data/chats.html');
 				setTimeout(function () {
 					misendbird.setChannel(resp.msg);
-					misendbird.init(0,resp.nickusr);
+					misendbird.init(0,resp.nickusr,-1);
 				},200);
 			}
 		},
@@ -564,4 +575,28 @@ function historialTrabajosAceptados() {
 	.fail(function(e) {
 		alert('Error: ' + e.message);
 	});
+}
+
+
+function procesaPagoEfectivo(ev) {
+  ev.preventDefault();
+  var form = ev.target;
+  form.querySelector('.js-user').value = window.localStorage.getItem("nickname");
+  var formData = new FormData(form);
+  var ajx = $.ajax({
+    type: 'post',
+    url: waooserver+'/solicitudes/ingresarSoporte',
+    dataType: 'json',
+    data: formData,
+    async : false,
+    cache : false,
+    contentType : false,
+    processData : false
+  });
+  ajx.done(function (resp) {
+    alert(resp.msg);
+  })
+  .fail(function (e) {
+    alert('Error: ' + e.message);
+  });
 }
